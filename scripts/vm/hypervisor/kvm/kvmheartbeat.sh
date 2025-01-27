@@ -35,12 +35,14 @@ HostIP=
 interval=
 rflag=0
 cflag=0
+useNFS=0
 
 while getopts 'i:p:m:h:t:rc' OPTION
 do
   case $OPTION in
   i)
      NfsSvrIP="$OPTARG"
+     useNFS=1
      ;;
   p)
      NfsSvrPath="$OPTARG"
@@ -66,7 +68,7 @@ do
   esac
 done
 
-if [ -z "$NfsSvrIP" ]
+if [ -z $MountPoint ]
 then
    exit 1
 fi
@@ -92,20 +94,38 @@ deleteVMs() {
   done
 }
 
-#checking is there the same nfs server mounted under $MountPoint?
-mounts=$(cat /proc/mounts |grep nfs|grep $MountPoint)
-if [ $? -gt 0 ]
-then
-   # remount it
-   mount $NfsSvrIP:$NfsSvrPath $MountPoint -o sync,soft,proto=tcp,acregmin=0,acregmax=0,acdirmin=0,acdirmax=0,noac &> /dev/null
+#checking is the mount point is mounted (NFS or sharedMountPoint)
+if [ $useNFS -eq 1 ]; then
+   mounts=$(cat /proc/mounts |grep nfs|grep $MountPoint)
    if [ $? -gt 0 ]
    then
-      printf "Failed to remount $NfsSvrIP:$NfsSvrPath under $MountPoint"
-      exit 1
+      # remount it
+      mount $NfsSvrIP:$NfsSvrPath $MountPoint -o sync,soft,proto=tcp,acregmin=0,acregmax=0,acdirmin=0,acdirmax=0,noac &> /dev/null
+      if [ $? -gt 0 ]
+         then
+            printf "Failed to remount $NfsSvrIP:$NfsSvrPath under $MountPoint"
+            exit 1
+      fi
+      if [ "$rflag" == "0" ]
+         then
+         deleteVMs $MountPoint
+      fi
    fi
-   if [ "$rflag" == "0" ]
+else
+   mounts=$(cat /proc/mounts |grep $MountPoint)
+   if [ $? -gt 0 ]
    then
-     deleteVMs $MountPoint
+      # remount it
+      mount $MountPoint &> /dev/null
+      if [ $? -gt 0 ]
+         then
+            printf "Failed to remount $NfsSvrIP:$NfsSvrPath under $MountPoint"
+            exit 1
+      fi
+      if [ "$rflag" == "0" ]
+         then
+         deleteVMs $MountPoint
+      fi
    fi
 fi
 

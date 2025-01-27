@@ -68,10 +68,11 @@ do
   esac
 done
 
-if [ -z "$NfsSvrIP" ]
+if [ -z $MountPoint ]
 then
    exit 2
 fi
+
 
 if [ -z "$SuspectTime" ]
 then
