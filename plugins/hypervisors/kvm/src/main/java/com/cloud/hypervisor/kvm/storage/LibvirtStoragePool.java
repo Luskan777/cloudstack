@@ -319,8 +319,8 @@ public class LibvirtStoragePool implements KVMStoragePool {
         String kvmLocalPath = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.LOCAL_STORAGE_PATH);
         String kvmLocalUuid = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.LOCAL_STORAGE_UUID);
         logger.debug("LibvirtPool: Storage pool " + this.name  + " type is " + type + " localPath is " + kvmLocalPath + " uuid: " + kvmLocalUuid);
-        logger.debug("isPoolSupportHA: " + (type == StoragePoolType.NetworkFilesystem || type == StoragePoolType.Filesystem && localPath != kvmLocalPath));
-        return type == StoragePoolType.NetworkFilesystem || type == StoragePoolType.Filesystem && localPath != kvmLocalPath;
+        logger.debug("isPoolSupportHA: " + (type == StoragePoolType.NetworkFilesystem || type == StoragePoolType.Filesystem && !kvmLocalUuid.equals(this.uuid)));
+        return type == StoragePoolType.NetworkFilesystem || type == StoragePoolType.Filesystem && !kvmLocalUuid.equals(this.uuid);
     }
 
     public String getHearthBeatPath() {
