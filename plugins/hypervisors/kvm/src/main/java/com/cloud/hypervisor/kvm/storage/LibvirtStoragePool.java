@@ -316,8 +316,10 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public boolean isPoolSupportHA() {
-        logger.debug("LibvirtPool: Storage pool " + this.name  + " type is " + type + " localPath is " + localPath + " path: " + this.localPath);
         String kvmLocalPath = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.LOCAL_STORAGE_PATH);
+        String kvmLocalUuid = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.LOCAL_STORAGE_UUID);
+        logger.debug("LibvirtPool: Storage pool " + this.name  + " type is " + type + " localPath is " + kvmLocalPath + " uuid: " + kvmLocalUuid);
+        logger.debug("isPoolSupportHA: " + (type == StoragePoolType.NetworkFilesystem || type == StoragePoolType.Filesystem && localPath != kvmLocalPath));
         return type == StoragePoolType.NetworkFilesystem || type == StoragePoolType.Filesystem && localPath != kvmLocalPath;
     }
 
