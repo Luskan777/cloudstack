@@ -316,6 +316,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public boolean isPoolSupportHA() {
+        String kvmLocalUuid = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.LOCAL_STORAGE_UUID);
         return type == StoragePoolType.NetworkFilesystem || type == StoragePoolType.Filesystem && !kvmLocalUuid.equals(this.uuid);
     }
 
